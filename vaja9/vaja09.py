@@ -874,7 +874,7 @@ def affineRegistration(iType, rCP, iCP, iImage):
         v = V.mean()
 
         xx = (X ** 2).mean()
-        yy = (y ** 2).mean()
+        yy = (Y ** 2).mean()
 
         xy = (X * Y).mean()
         ux = (U * X).mean()
@@ -899,7 +899,7 @@ def affineRegistration(iType, rCP, iCP, iImage):
             oT_vec = np.linalg.inv(XY) @ UV
             # spravimo ga v 3x3 izhodno matriko
             oT[:2] = oT_vec.reshape(2, 3)
-            
+
 
 
     # inicializiramo matriko tock, kolikor je kontrolnih tock
