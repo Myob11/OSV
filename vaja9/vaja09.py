@@ -839,8 +839,43 @@ def affineRegistration(iType, rCP, iCP, iImage):
     """
     Funkcije za afino poravnavo kontrolnih tock
     """
+    # inicializiramo izhodno transformacijsko matriko
+    oT = np.eye(3)  # enotna matrika (enke po diagonali velikosti 3x3)
 
-    raise NotImplementedError("Implement me")
+    # izluscimo koordinate
+    X = rCP[:, 0] 
+    Y = rCP[:, 1]
+    U = iCP[:, 0]
+    V = iCP[:, 1]
+
+    if iType == "interpolation":
+
+        # inicializiramo matriki xy in uv
+        XY = np.ones((3, 3))
+        UV = np.ones((3, 3))
+
+        # dolocimo referencne matrike
+        XY[0], XY[1] = X, Y
+        UV[0], UV[1] = U, V
+
+        # dolocimo matriko preslikave
+        if np.linalg.det(XY) == 0:
+            raise ValueError("Matrika ni invertibilna, najdi boljse tocke")
+        else:
+            oT = UV @ np.linalg.inv(XY) # matricno množenje
+        
+        # inicializiramo matriko tock, kolikor je kontrolnih tock
+        pts = np.ones((3, U.size))
+        pts[0], pts[1] = U, V
+        # transformiramo vhodne kontrolne tocke z matriko
+        oCP = np.linalg.inv(oT) @ pts
+
+        # afina preslikava slike glede na matriko preslikave
+        oImage = transformImage(
+            iType = "affine", iImage = iImage, iDim = [1, 1], iP = oT, iBgr = 0, iInterp = 1
+        )
+
+
 
     return oT, oCP, oImage
 
@@ -851,7 +886,33 @@ def getImages(iImage1, iImage2, iStep):
     Funkcije za izracun rezultatov poravnave v obliki slike razlik in slike sahovnice
     """
 
-    raise NotImplementedError("Implement me")
+    # skala slike je [-255, 255]
+    diff = iImage1.astype(float) - iImage2.astype(float)
+    # [0, 500] skala
+    diff += 255
+    # [0, 255] skala
+    diff /= 2
+
+    oImage1 = diff.astype(np.uint8)
+
+    # dolocimo sahovnico
+    Y, X = iImage2.shape
+    oImage2 = iImage2.copy() # če bi samo enačili slike bi to samo naredilo pointer na sliko 1 in bi spreminjali obe
+ 
+    for y in range(0, Y, iStep):
+        for x in range(0, X, iStep):
+            # če izsek kvadratka pade na liho stevilo uzamemo prvo sliko, cene pa drugo
+            isOdd = (x + y) / iStep % 2
+
+            if isOdd:
+                # če kvadratek seže izven slike, upoštevamo konec slike kot mejo
+                xLim = min(x + iStep, X)
+                yLim = min(y + iStep, Y)
+
+                # kvadratek zamenjamo za kvadratek iz prve slike
+                oImage2[y : yLim, x : xLim] = iImage1[y : yLim, x : xLim]
+
+
 
     return oImage1, oImage2
 
