@@ -864,16 +864,56 @@ def affineRegistration(iType, rCP, iCP, iImage):
         else:
             oT = UV @ np.linalg.inv(XY) # matricno množenje
         
-        # inicializiramo matriko tock, kolikor je kontrolnih tock
-        pts = np.ones((3, U.size))
-        pts[0], pts[1] = U, V
-        # transformiramo vhodne kontrolne tocke z matriko
-        oCP = np.linalg.inv(oT) @ pts
+    if iType == "approximation":
+        
+        # izracunamo momente matrike
+        # statisticen vrednosti vseh koordinat, ce imamo vec kot 3 tocke
+        x = X.mean()
+        y = Y.mean()
+        u = U.mean()
+        v = V.mean()
 
-        # afina preslikava slike glede na matriko preslikave
-        oImage = transformImage(
-            iType = "affine", iImage = iImage, iDim = [1, 1], iP = oT, iBgr = 0, iInterp = 1
-        )
+        xx = (X ** 2).mean()
+        yy = (y ** 2).mean()
+
+        xy = (X * Y).mean()
+        ux = (U * X).mean()
+        uy = (U * Y).mean()
+        vx = (V * X).mean()
+        vy = (V * Y).mean()
+
+        # sestavimo matriko 6 x 6 aproksimacijske transformacije
+        sub_matrix = np.array([xx, xy, x, xy, yy, y, x, y, 1]).reshape(3, 3) # iz formule matrika 3x3
+
+        XY = np.zeros((6, 6))
+        # ustavimo naso 3x3 sub_matrix matriko v zgornji levi in spodnji desni del nase 6x6 matrike
+        XY[:3, :3] = sub_matrix
+        XY[3:, 3:] = sub_matrix
+
+        UV = np.array([ux, uy, u, vx, vy, v]).reshape(-1, 1) # ga obrnemo za 90 stopinj, da ga lahko mnozimo z vektorjem
+
+        if np.linalg.det(XY) == 0:
+            raise ValueError("Matrika ni invertibilna, najdi boljse tocke")
+        else:
+            # izracunamo vektor a11 a12 tx a21 a22 ty, ki je oblike 1x6
+            oT_vec = np.linalg.inv(XY) @ UV
+            # spravimo ga v 3x3 izhodno matriko
+            oT[:2] = oT_vec.reshape(2, 3)
+            
+
+
+    # inicializiramo matriko tock, kolikor je kontrolnih tock
+    pts = np.ones((3, U.size))
+    pts[0], pts[1] = U, V
+    # transformiramo vhodne kontrolne tocke z matriko
+    oCP = np.linalg.inv(oT) @ pts
+
+    # afina preslikava slike glede na matriko preslikave
+    oImage = transformImage(
+        iType = "affine", iImage = iImage, iDim = [1, 1], iP = oT, iBgr = 0, iInterp = 1
+    )
+    
+
 
 
 
