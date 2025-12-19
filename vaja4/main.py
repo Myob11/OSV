@@ -88,7 +88,21 @@ def getPlanarProjection ( iImage , iDim , iNormVec , iFunc ):
         oH = np.arange(X) * dx
 
     elif iNormVec[2] == 0:
-        print("izpolnjen pogoj")
+
+        angle_rad = np.arctan2(iNormVec[1], iNormVec[0])
+        angle_deg = np.degrees(angle_rad)
+
+        print("Angle (radians):" , angle_rad)
+        print("Angle (degrees):" , angle_deg)
+
+        for y in range(3):
+            for x in range(3):
+                x_crtica = x * np.cos(angle_rad) - y * np.sin(angle_rad)
+                y_crtica = x * np.sin(angle_rad) + y * np.cos(angle_rad)
+                print(f"Original: ({x}, {y}) -> Rotated: ({x_crtica:.2f}, {y_crtica:.2f})")
+
+            
+
 
     else:
         raise NotImplementedError("unknown normvec")
@@ -115,7 +129,7 @@ if __name__ == "__main__":
 
 # 1
 
-print("DODATNO GRADIVO")
+print("**************** DODATNO GRADIVO ****************")
 
 xc = 256
 stranskiCS, stranskiH, stranskiV = getPlanarCrossSection(I, pxDim, [1,0,0], xc)
@@ -155,4 +169,8 @@ display_image(sagP, "povprečna projekcija", sagH, sagV)
 sagP, sagH, sagV = getPlanarProjection(I, pxDim, [0, 0, 1], func)
 display_image(sagP, "povprečna projekcija", sagH, sagV)
 
+
+# testiranje projekcije pod kotom
+sagP, sagH, sagV = getPlanarProjection(I, pxDim, [3.83, 9.24, 0], func)
+display_image(sagP, "povprečna projekcija", sagH, sagV)
 

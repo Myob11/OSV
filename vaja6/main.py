@@ -82,7 +82,7 @@ def getParameters(iType, scale = None, trans = None, rot = None, shear = None, o
         assert mapped_points is not None 
         # preverjamo neko stanje ki zelimo da je res, če to ni res nas vrže iz funkcije!
 
-        #stevilo kontrolnih točk
+        # stevilo kontrolnih točk
         K = original_points.shape[0]
 
         # inicializiranje matrike koeficientov
