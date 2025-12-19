@@ -106,18 +106,64 @@ def analyzeDFT2 (iMatrix , iOperations , iTitle =""):
     return oMatrix  
 
 if __name__ == "__main__":
-    # amplitudni diagram, sredina predstavlja nizke frekv, proti robu pa vedno visje
-    # za amplitudo hocemo diagram centrirati, da bodo visoke frekv na kupu, log skala
+    # amplitudni diagram, sredina predstavlja nizke frekv, proti robu pa vedno visje frekv
+    # za amplitudo hocemo diagram centrirati, da bodo visoke frekv na kupu, log skala da lahko vizualiziramo
     # vrednosti v frekv prostoru, scale in display za lep prikaz
     analyzeDFT2(
         G,
         iOperations=["amplitude", "center", "log", "scale", "display"],
         iTitle = "Amplituda (log skaliranje)"
     )
-
+    # Faza je definirana od  -pi do pi, zato skaliranje po log fazi in skaliranje nic ne doprinesejo k vizualizaciji
     analyzeDFT2(
         G,
         iOperations=["phase", "scale", "display"],
         iTitle = "Faza"
     )
 
+#%%
+def getFilterSpectrum(iMatrix, radij_freq, iType):
+
+    # inicializiramo izhodno matriko
+    # naredi matriko samih 0 velikosti iMatrix
+    oMatrix = np.zeros_like(iMatrix, dtype=float)
+
+    N, M = iMatrix.shape
+
+    # sredisce spektra, nerabimo int ker nas zanimajo tudi deciamlne vrednosti
+    n_c, m_c = (N - 1) / 2, (M - 1) / 2
+
+    # idealni nizkopasovni filter ILPF(I je prva crka za ideal)
+    if iType[0] == "I":
+
+        for n in range(N):
+            for m in range(M):
+
+                # razdalja slikovnega elementa od sredisca
+                D = np.sqrt((m - m_c) ** 2 + (n - n_c) ** 2)
+
+                if D <= radij_freq:
+                    oMatrix[n, m] = 1
+
+    # če je nas vhod visoko pasovni filt, IHPF, so od I naprej: HPF
+    if iType[1:] == "HPF":
+    
+        # invertiramo oMatrix
+        oMatrix = 1 - oMatrix
+
+    return oMatrix
+
+if __name__ == "__main__":
+
+    # vzamemo frekvence do 1/4 razdalje krajse stranice
+    H = getFilterSpectrum(G, min(G.shape) / 4, "IHPF")
+    # prikazemo filter 
+    analyzeDFT2(H, iOperations = ["scale", "display"])
+    # zmnozimo filter z naso frekv sliko, a ga najprej centriramo,
+    # zato da ga lahko apliciramo na naso originalno frekvencno sliko
+    # kjer so bile nizke frekv na robovih
+    # efektivno krog razdelimo da je na robovih
+    Gf = G * analyzeDFT2(H, iOperations=["center"])
+    gf = computeDFT2(Gf, inverse = True)
+    analyzeDFT2(gf, iOperations = ["amplitude", "display"], iTitle = "filtrirana slika z HPF")
+# %%
