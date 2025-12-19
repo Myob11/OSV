@@ -53,7 +53,7 @@ def analyzeDFT2 (iMatrix , iOperations , iTitle =""):
         elif operation == "phase":
             # razdeli matriko na eno dimenzijo
             # np.angle poracuna kote -pi do pi na nasi vhfoni matriki
-            np.unwrap(np.angle(oMatrix))
+            oMatrix = np.unwrap(np.angle(oMatrix))
 
         elif operation == "ln":
             # da se izognemo log(0) dodamo zelo majhno vrednost zraven
