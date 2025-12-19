@@ -15,6 +15,8 @@ laboratorijske-vaje/
 ├── vaja6/                  # Geometrijske transformacije
 ├── vaja7/                  # Prostorsko filtriranje
 ├── vaja8/                  # Interaktivno ogrodje (PyQt5)
+├── vaja9/                  # Poravnava slik z nadzorovanimi tockami (GUI)
+├── vaja10/                 # Diskretna Fourierova transformacija 2D
 ├── env/                    # Python virtualno okolje
 └── test/                   # Testno okolje
 ```
@@ -68,6 +70,16 @@ laboratorijske-vaje/
 - Nalaganje in prikaz slik v realnem času
 - Uporaba matplotlib Canvas za vizualizacijo
 - Interaktivna obdelava slik
+
+### Vaja 9: Poravnava slik (GUI)
+- PyQt5 vmesnik za nalaganje referenčne in vhodne slike
+- Izbor kontrolnih točk ter afina interpolacijska/aproksimacijska poravnava
+- Izračun MSE in R2 na izbranem območju, prikaz sahovnice/razlike
+
+### Vaja 10: 2D Fourierova transformacija
+- Ročna implementacija 2D DFT/IDFT (`computeDFT2`) z možnostjo konjugacije za inverz
+- Analiza spektra (`analyzeDFT2`): amplituda/faza, centriranje kvadrantov, log in linearno skaliranje
+- Vizualizacija amplitudnega in faznega diagrama v frekvenčni domeni
 
 ## 🛠️ Tehnologije
 
