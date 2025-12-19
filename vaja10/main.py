@@ -76,7 +76,7 @@ def analyzeDFT2 (iMatrix , iOperations , iTitle =""):
         elif operation == "center":
             N, M = oMatrix.shape
             # najdemo center matrike
-            n_c, m_c = int((N - 1) / 2, int((M - 1) / 2))
+            n_c, m_c = int((N - 1) / 2), int((M - 1) / 2)
             # izluscimo 4 kvadrante vhodne matrike
             A = oMatrix[:n_c, :m_c]
             B = oMatrix[n_c:, :m_c]
@@ -114,7 +114,6 @@ if __name__ == "__main__":
         iOperations=["amplitude", "center", "log", "scale", "display"],
         iTitle = "Amplituda (log skaliranje)"
     )
-
 
     analyzeDFT2(
         G,
