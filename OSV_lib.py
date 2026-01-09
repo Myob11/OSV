@@ -4,7 +4,7 @@ import numpy as np
 
 ### 1.lab
 def display_image(iImage, iTitle="", iGridX = None, iGridY = None, cmap = 'gray'):
-    plt.figure()
+    fig = plt.figure()
     plt.title(iTitle)
 
     if iGridX is None and iGridY is None:
@@ -33,7 +33,9 @@ def display_image(iImage, iTitle="", iGridX = None, iGridY = None, cmap = 'gray'
         extent=extent,
     )
     
-    plt.show()
+    #plt.show()
+
+    return fig
 
 
 def load_image(path, size, type):
