@@ -82,4 +82,21 @@ def blockMatching(iFrame1, iFrame2, iBlockSize, iSearchSize):
     # searchsize je definiran kot premer zato delimo z 2 da se lahko max premaknemo v 
     # katero koli smer za radij( / 2 search siza)
     P = (iSearchSize - 1) / 2
-    PTS = np.array([])
+    PTS = np.array([
+        [0, 1],
+        [1, 0], [0, 1], [-1, 0], [0, -1],
+        [1, 1], [1, -1], [-1, 1], [-1, -1]
+    ])
+
+    for n in range(N):
+        # definiramo koordinate v y smer vsakega bloka
+        y_min = n * dy
+        y_max = (n + 1) * dy
+        y = np.arange(y_min, y_max)
+
+        for m in range(M):
+            # enako za x smer
+            x_min = m * dx
+            x_max = (m + 1) * dx
+            x = np.arange(x_min, x_max)
+            
