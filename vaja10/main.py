@@ -158,11 +158,12 @@ if __name__ == "__main__":
     # vzamemo frekvence do 1/4 razdalje krajse stranice
     H = getFilterSpectrum(G, min(G.shape) / 4, "IHPF")
     # prikazemo filter 
-    analyzeDFT2(H, iOperations = ["scale", "display"])
+    analyzeDFT2(H, iOperations = ["scale","center", "display"])
     # zmnozimo filter z naso frekv sliko, a ga najprej centriramo,
     # zato da ga lahko apliciramo na naso originalno frekvencno sliko
     # kjer so bile nizke frekv na robovih
     # efektivno krog razdelimo da je na robovih
+    
     Gf = G * analyzeDFT2(H, iOperations=["center"])
     gf = computeDFT2(Gf, inverse = True)
     analyzeDFT2(gf, iOperations = ["amplitude", "display"], iTitle = "filtrirana slika z HPF")
