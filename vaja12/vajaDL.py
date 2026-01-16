@@ -8,6 +8,9 @@ import torchvision
 
 ## definicija parametrov
 if __name__ == "__main__":
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     train_ratio = 0.85  # TODO
     n_epochs = 3  # TODO
     batch_size_train = 64  # TODO
@@ -166,10 +169,10 @@ if __name__ == "__main__":
 
 
 def calculate_accuracy(gt, predicted):
-    """
-    Funkcija za izracun natancnosti razvrscanja
-    """
-    raise NotImplementedError("implement me")
+    
+    # Funkcija za izracun natancnosti razvrscanja
+    N_correct = (np.array(gt) == np.array(predicted)).sum()
+    acc = N_correct / len(gt)
     return N_correct, acc
 
 
@@ -186,15 +189,15 @@ def train(loader, epoch, counter_list, losses_list, log_step=100):
     """
     for batch_idx, (data, target) in enumerate(loader):
         # postavimo gradiente na nic
-        raise NotImplementedError("implement me")
+        optimizer.zero_grad()
         # spustimo slike skozi nevronsko mrezo in izracunamo izhodni vektor
-        raise NotImplementedError("implement me")
+        output = network(data)
         # izracunamo vrednost kriterijske funkcije
-        raise NotImplementedError("implement me")
+        loss = loss_fcn(output, target)
         # izracunaj gradiente za vse parametre v mrezi
-        raise NotImplementedError("implement me")
+        loss.backward()
         # popravi vrednosti parametrov
-        raise NotImplementedError("implement me")
+        optimizer.step()
 
         # ko skozi mrezo spustimo veckratnik 'train_log_step_interval' paketov podatkov, potem izpisemo na zaslon trenutno vrednost kriterijske funkcije
         if batch_idx % log_step == 0:
@@ -218,9 +221,17 @@ def inference(loader, batch_size, phase="", epoch=None):
     with torch.no_grad():
         for data, target in loader:
 
-            raise NotImplementedError("implement me")
+            output = network(data)
+            loss_value += loss_fcn(output, target).item()
+            pred = output.data.max(1, keepdim=True)[1]
+            predicted += pred.flatten().tolist()
+            gt += target.flatten().tolist()
+            if phase.lower() == "test":
+                images += list(np.squeeze(data.numpy()))   
 
-    N_correct, acc = ...
+    loss_value /= len(loader.dataset) / batch_size
+
+    N_correct, acc = calculate_accuracy(gt, predicted)
 
     if phase.lower() == "validation":
         print(
