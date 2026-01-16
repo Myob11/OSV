@@ -8,13 +8,13 @@ import torchvision
 
 ## definicija parametrov
 if __name__ == "__main__":
-    train_ratio = None  # TODO
-    n_epochs = None  # TODO
-    batch_size_train = None  # TODO
-    batch_size_test = None  # TODO
-    learning_rate = None  # TODO
-    momentum = None  # TODO
-    val_log_epoch_interval = None  # TODO
+    train_ratio = 0.85  # TODO
+    n_epochs = 3  # TODO
+    batch_size_train = 64  # TODO
+    batch_size_test = 1000  # TODO
+    learning_rate = 0.01  # korak koliko hitro gremo po prostoru nevronske mreze da najdemo minimum
+    momentum = 0.5  # utež kako dobro gremo prejšnji korak v iskanju minimuma
+    val_log_epoch_interval = 1  # kolikokrat v epohah izračunamo vrednost kriterijske funkcije na validacijskih podatkih
 
     batch_size_val = batch_size_train
     train_log_step_interval = 100
@@ -35,9 +35,9 @@ def count_samples_in_class(dataset, classes):
 
 if __name__ == "__main__":
     train_and_val_dataset = torchvision.datasets.MNIST(
-        "/files/",
+        "vaja12/data",
         train=True,
-        download=True,
+        download=False,
         transform=torchvision.transforms.Compose(
             [
                 # matrike zapisemo v obliko torch.Tensor (na nek nacin podobno kot numpy array)
@@ -49,9 +49,9 @@ if __name__ == "__main__":
         ),
     )
     test_dataset = torchvision.datasets.MNIST(
-        "/files/",
+        "vaja12/data",
         train=False,
-        download=True,
+        download=False,
         transform=torchvision.transforms.Compose(
             [
                 torchvision.transforms.ToTensor(),
@@ -60,11 +60,32 @@ if __name__ == "__main__":
         ),
     )
 
-    raise NotImplementedError("define dataloaders")
-    train_loader = None
-    val_loader = None
-    test_loader = None
+    N_train_and_val = len(train_and_val_dataset)
 
+    train_dataset, val_dataset = torch.utils.data.random_split(
+        train_and_val_dataset,
+        [int(N_train_and_val *  train_ratio), int(N_train_and_val * val_ratio)],
+        generator=torch.Generator().manual_seed(random_seed),
+    )
+
+
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset,
+        batch_size=batch_size_train,
+        shuffle=True,
+    )
+
+    val_loader = torch.utils.data.DataLoader(
+        val_dataset,
+        batch_size=batch_size_train,
+        shuffle=False,
+    )
+
+    test_loader = torch.utils.data.DataLoader(
+        test_dataset,
+        batch_size=batch_size_train,
+        shuffle=False,
+    )
 
 def showMultipleImages(nRows, nCols, iImages, iLabels, iPrediction=None):
     """
@@ -102,7 +123,7 @@ if __name__ == "__main__":
 
     showMultipleImages(5, 6, example_data, iLabels=example_targets.numpy())
 
-
+#%%
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
@@ -119,7 +140,13 @@ class Net(nn.Module):
         self.soft_max = nn.LogSoftmax(dim=1)
 
     def forward(self, x):
-        raise NotImplementedError("implement me")
+        x = F.relu(F.max_pool2d(self.conv1(x), 2))
+        x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
+        x = x.view(-1, 320)
+        x = F.relu(self.fc1(x))
+        x = F.dropout(x, training=self.training)
+        x = self.fc2(x)
+        x = self.soft_max(x)
         return x
 
 
@@ -127,7 +154,7 @@ if __name__ == "__main__":
     # inicializacija nevronske mreze
     network = Net()
     # optimizacijska metoda
-    optimizer = ...
+    optimizer = optim.SGD(network.parameters(), lr=learning_rate, momentum=momentum)
     # kriterijska funkcija
     loss_fcn = nn.NLLLoss(reduction="mean")
 
