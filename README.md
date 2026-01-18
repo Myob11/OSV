@@ -17,6 +17,8 @@ laboratorijske-vaje/
 ├── vaja8/                  # Interaktivno ogrodje (PyQt5)
 ├── vaja9/                  # Poravnava slik z nadzorovanimi tockami (GUI)
 ├── vaja10/                 # Diskretna Fourierova transformacija 2D
+├── vaja11/                 # Ocenjevanje gibanja v videu (block matching)
+├── vaja12/                 # Klasifikacija MNIST s konvolucijsko mrezo (PyTorch)
 ├── env/                    # Python virtualno okolje
 └── test/                   # Testno okolje
 ```
@@ -81,6 +83,18 @@ laboratorijske-vaje/
 - Analiza spektra (`analyzeDFT2`): amplituda/faza, centriranje kvadrantov, log in linearno skaliranje
 - Vizualizacija amplitudnega in faznega diagrama v frekvenčni domeni
 
+### Vaja 11: Ocenjevanje gibanja v videu
+- Branje posameznih okvirjev z OpenCV (`VideoCapture`, `loadFrame`)
+- Predikcija okvirja s premikom (`framePrediction`) in vizualizacija razlike
+- Block matching z logaritemskim iskanjem vektorja premika za vsak blok (`blockMatching`)
+- Prikaz polja vektorjev gibanja na sliki (`displayMotionField`)
+
+### Vaja 12: Klasifikacija MNIST s CNN (PyTorch)
+- Priprava `DataLoader` za train/val/test ter normalizacija MNIST
+- Konvolucijska mreža z dvema conv plastema, dropoutom in dvema polno povezavnima plastema (`Net`)
+- Učenje s SGD z momentom, spremljanje kriterijske funkcije in validacije
+- Ovrednotenje natannčnosti in vizualizacija napovedi na testnih vzorcih
+
 ## 🛠️ Tehnologije
 
 - **Python 3.x**
@@ -88,6 +102,8 @@ laboratorijske-vaje/
 - **Matplotlib** - vizualizacija slik in grafov
 - **PyQt5** - grafični vmesnik (vaja 8)
 - **PIL/Pillow** - dodatna podpora za slike
+- **OpenCV** - delo z videom in okvirji (vaja 11)
+- **PyTorch & torchvision** - nevronske mreže (vaja 12)
 
 ## 🚀 Namestitev in uporaba
 
@@ -114,6 +130,16 @@ pip install numpy matplotlib ipykernel jupyter pillow
 Za vajo 8:
 ```bash
 pip install PyQt5
+```
+
+Za vajo 11:
+```bash
+pip install opencv-python
+```
+
+Za vajo 12 (priporočeno po uradnih navodilih PyTorch):
+```bash
+pip install torch torchvision torchaudio
 ```
 
 ### 4. Poganjanje posamezne vaje
