@@ -624,7 +624,57 @@ def spatialFiltering(iType, iImage, iFilter, iStatFunc=None, iMorphOp=None):
 
 # ********************************************************************************************************************************** #
 
-## lab 9
+## lab 8
+
+def houghTransform2D2P(iImage, stepR, stepF):
+    """
+    Houghova transformacija v 2D za 2 parametra.
+    """
+
+    Y , X = iImage.shape
+
+    # izracunamo diagonalo slike
+    Diagonal = np.sqrt((X - 1) ** 2 + (Y - 1) ** 2) 
+    # izracunamo malo veji korak kot je velikost slike, da ne dobimo errorja izven slike
+    d = stepR * np.ceil(Diagonal / stepR)
+    # razpon vrednosti radijev nasih funkcij:
+    rangeR = np.arange(-d, d + stepR, stepR)
+
+    # razpon vrednosti kotov nasih funkcij
+    rangeFi = np.arange(-90, 90, stepF)
+
+    # koti v radianih
+    rangeFiRad = np.deg2rad(rangeFi)
+
+    #index za sledenje med stopinjami in radiani
+    idxFi = np.arange(rangeFi.size)
+
+    # inicializiramo akumulator
+    oAccumulator = np.zeros((rangeR.size, rangeFi.size))
+
+    # sprehodimo se cez piksle slike
+    for y in range(Y):
+        for x in range(X):
+            # ce je nas piksel del roba (binarno 1, if stavek se izvede)
+            # true je vse razen 0
+            if iImage[y, x]:
+                for f_idx in idxFi:
+                    # najdemo nas kot v 
+                    fi = rangeFiRad[f_idx]
+
+                    # izracunamo radij nase funkcije glede na koordinate in kot fi
+                    r = x * np.cos(fi) + y * np.sin(fi)
+
+                    # ce je nas r smiiselen in spada v vektor radijev
+                    if rangeR[0] <= r <= rangeR[-1]:
+                        # izracunamo vektor razlik med nasim radijem in vsemi moznimi radiji v akumulatorju
+                        diffR = np.abs(rangeR - r)
+                        r_idx = diffR.argmin()
+
+                        # akumuliramo vrednosti sekajocih se premic za vsak pixel
+                        oAccumulator[r_idx, f_idx] += 1
+
+    return oAccumulator, rangeR, rangeFi
 
 
 
