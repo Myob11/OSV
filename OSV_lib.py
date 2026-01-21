@@ -443,6 +443,20 @@ def transformImage( iType , iImage , iDim , iP , iBackground = 0 , iInterp = 0):
                 U = getRadialValue([x_hat, y_hat], iP["pts"])
                 x_hat, y_hat = np.array([U @ iP["alphas"], U @ iP["betas"]])
             
+            elif iType == "rotation_center":
+                # rotiramo sliko okrog središča
+                angle, center = iP
+                cx, cy = center
+                # Translate to origin
+                x_rel = x_hat - cx
+                y_rel = y_hat - cy
+                # Rotate
+                x_rot = x_rel * np.cos(angle) - y_rel * np.sin(angle)
+                y_rot = x_rel * np.sin(angle) + y_rel * np.cos(angle)
+                # Translate back
+                x_hat = x_rot + cx
+                y_hat = y_rot + cy
+            
             # preslikamo nazaj v indeks  slikovnega elementa
             x_hat = x_hat/dx
             y_hat = y_hat/dy
