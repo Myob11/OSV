@@ -30,11 +30,48 @@ def color2grayscale(iImage):
     
     return gray
 
+def rotate_around_point(image, angle_deg, center):
+    """
+    Rotate image around a specific point.
+    
+    Args:
+        image: Input image to rotate
+        angle_deg: Rotation angle in degrees
+        center: (x, y) tuple specifying the center of rotation
+    
+    Returns:
+        Rotated image
+    """
+    # Get image center
+    image_center = np.array(image.shape[::-1]) / 2
+    
+    # Calculate offset between desired center and image center
+    offset = np.array(center) - image_center
+    
+    # Rotate the image around its center
+    rotated = ndimage.rotate(image, angle_deg, reshape=False, order=1, cval=0)
+    
+    # Shift the rotated image to account for rotation around different point
+    # When rotating around a point other than center, we need to apply a translation
+    # to compensate for the difference
+    angle_rad = np.radians(angle_deg)
+    cos_a, sin_a = np.cos(angle_rad), np.sin(angle_rad)
+    
+    # Calculate the translation needed
+    # The offset rotates with the image
+    rotated_offset_x = offset[0] * cos_a - offset[1] * sin_a - offset[0]
+    rotated_offset_y = offset[0] * sin_a + offset[1] * cos_a - offset[1]
+    
+    # Apply translation using scipy's shift function
+    rotated = ndimage.shift(rotated, [-rotated_offset_y, -rotated_offset_x], order=1, cval=0)
+    
+    return rotated
+
 def get_coordinates_interactively(image):
     """
     Interactive coordinate picker for selecting points A and B on the image.
     Click on two points: first point A (upper-left corner), then point B (upper-right corner).
-    Press Enter after selecting both points to continue.
+    Close the window after selecting both points to continue.
     """
     coords = []
     
@@ -57,13 +94,13 @@ def get_coordinates_interactively(image):
             # Print to console
             print(f"Point {'A' if len(coords) == 1 else 'B'} selected: ({x}, {y})")
             
-            # Close after selecting both points
+            # Inform user after selecting both points
             if len(coords) == 2:
-                print("Both points selected. Close the window or press Enter to continue...")
+                print("Both points selected. Close the window to continue...")
     
     fig, ax = plt.subplots(figsize=(10, 8))
     ax.imshow(image, cmap='gray')
-    ax.set_title("Click to select coordinates:\n1. Point A (upper-left corner)\n2. Point B (upper-right corner)")
+    ax.set_title("Click to select coordinates:\n1. Point A (upper-left corner)\n2. Point B (upper-right corner)\nClose window when done")
     ax.set_xlabel("X coordinate")
     ax.set_ylabel("Y coordinate")
     
@@ -102,9 +139,12 @@ if __name__ == "__main__":
     phi = np.arctan2(vec[1], vec[0])      # angle of AB vs x-axis
     angle_deg = -phi * 180 / np.pi        # rotate so AB becomes horizontal (convert to degrees)
 
-    # Rotate the image using scipy's ndimage.rotate
-    # Note: scipy rotates around the center by default
-    rotated = ndimage.rotate(gray, angle_deg, reshape=False, order=1, cval=0)
+    # Rotate the image around point A
+    rotated = rotate_around_point(gray, angle_deg, A)
+
+    print(f"\nRotation applied:")
+    print(f"  Rotation center: Point A {A}")
+    print(f"  Angle: {angle_deg:.2f}°")
 
     display_image(rotated, "Rotated grayscale Paris map", cmap="gray")
     plt.show()
