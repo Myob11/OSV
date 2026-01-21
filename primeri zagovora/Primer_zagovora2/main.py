@@ -59,7 +59,7 @@ if __name__ == "__main__":
     rotated = transformImage(
         "rotation_center",
         gray,
-        gray.shape,
+        (1, 1),           # pixel dimensions (dx, dy) - each pixel is 1x1 unit
         (angle, A),       # rotate about point A
         iBackground=0,
         iInterp=1         # bilinear
