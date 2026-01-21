@@ -25,8 +25,6 @@ def color2grayscale(iImage):
     # Convert RGB to grayscale by averaging the 3 color channels for each pixel
     # Use floor to round down, then convert to uint8
     gray = np.floor(img.mean(axis=2)).astype(np.uint8)
-  
-
     
     return gray
 
@@ -42,7 +40,7 @@ def rotate_around_point(image, angle_deg, center):
     Returns:
         Rotated image
     """
-    # Get image center
+    # Get image center - convert from (height, width) to (x, y) coordinates
     image_center = np.array(image.shape[::-1]) / 2
     
     # Calculate offset between desired center and image center
@@ -105,7 +103,7 @@ def get_coordinates_interactively(image):
     ax.set_ylabel("Y coordinate")
     
     # Connect the click event
-    cid = fig.canvas.mpl_connect('button_press_event', onclick)
+    fig.canvas.mpl_connect('button_press_event', onclick)
     
     plt.show()
     
