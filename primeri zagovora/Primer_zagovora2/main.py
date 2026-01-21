@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from OSV_lib import display_image, load_image
+from OSV_lib import display_image, load_image, transformImage
 
 def color2grayscale(iImage):
     # Convert input image to numpy array with float type for processing
