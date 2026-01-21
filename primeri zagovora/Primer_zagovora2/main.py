@@ -40,11 +40,17 @@ if __name__ == "__main__":
 
     gray = color2grayscale(rgb)
     display_image(gray, "Grayscale Paris map", cmap="gray")
-    plt.show()
-
- # TODO: set these from measured coordinates (x, y)
-    A = (100, 80)  # upper-left corner of the square
-    B = (300, 90)  # upper-right corner of the square
+    
+    # Get coordinates from user measurements
+    print("Please click on two points in the image:")
+    print("  First click: Point A (upper-left corner of the square)")
+    print("  Second click: Point B (upper-right corner of the square)")
+    pts = plt.ginput(2, timeout=-1)
+    plt.close()
+    
+    A = (int(pts[0][0]), int(pts[0][1]))  # upper-left corner of the square
+    B = (int(pts[1][0]), int(pts[1][1]))  # upper-right corner of the square
+    print(f"Selected coordinates: A={A}, B={B}")
 
     vec = np.array(B) - np.array(A)
     phi = np.arctan2(vec[1], vec[0])      # angle of AB vs x-axis
