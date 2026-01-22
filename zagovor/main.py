@@ -5,7 +5,6 @@ import cv2
 import os
 
 ## naloga 1
-
 def load_video_frames(video_path, max_frames=None):
     """
     Prebere video datoteko in vrne seznam slik v RGB barvnem prostoru.
@@ -66,6 +65,33 @@ def select_sharpest_frames(frames, scores, keep_fraction=0.2):
     
     return best_frames, best_indices
 
+## naloga 4
+def lucky_imaging(frames, scores):
+    """
+    Izvede združevanje slik z uteženim povprečjem glede na oceno ostrine.
+    """
+    # Pretvori v float32 za natančen izračun
+    frames_f = frames.astype(np.float32)
+    scores_f = np.array(scores, dtype=np.float32)
+    
+    # Preoblikuj scores, da se bodo dimenzije ujemale (N, 1, 1, 1) za broadcasting
+    # scores ima dolžino N, frames so (N, H, W, 3)
+    weights = scores_f[:, np.newaxis, np.newaxis, np.newaxis]
+    
+    # Izračunaj uteženo vsoto
+    weighted_sum = np.sum(frames_f * weights, axis=0)
+    
+    # Izračunaj vsoto uteži
+    sum_weights = np.sum(weights)
+    
+    # Izračunaj končno sliko
+    final_image_f = weighted_sum / sum_weights
+    
+    # Pretvori nazaj v uint8 (pazi na clipping)
+    final_image = np.clip(final_image_f, 0, 255).astype(np.uint8)
+    
+    return final_image
+
 if __name__ == "__main__":
     video_path = r"zagovor\data\EXAM_video.mp4"
     # Če datoteke ne najde na originalni poti, poskusi še lokalno (če se skripta poganja direktno iz mape zagovor)
@@ -124,10 +150,10 @@ if __name__ == "__main__":
     print("\nNaloga 3: Izbira najboljših slik (Lucky Imaging)")
     frames = load_video_frames(video_path)
     print(f"Naloženih frames: {len(frames)}")
+
     if len(frames) > 0:
-        # Ponovimo izračun scores, če niso definirani (zaradi strukture kode zgoraj)
-        if 'scores' not in locals():
-             scores = [sharpness_score(f) for f in frames]
+        # Ponovimo izračun scores
+        scores = [sharpness_score(f) for f in frames]
 
         keep_fraction = 0.2
         best_frames, best_indices = select_sharpest_frames(frames, scores, keep_fraction=keep_fraction)
@@ -147,6 +173,55 @@ if __name__ == "__main__":
                 plt.axis('off')
             plt.tight_layout()
             plt.show() 
+
+    ## naloga 4: Lucky Imaging - združevanje in ostrenje
+    frames = load_video_frames(video_path)
+    scores = [sharpness_score(f) for f in frames]
+    print("\nNaloga 4: Lucky Imaging (združevanje in ostrenje)")
+    
+    if len(frames) > 0:
+        # Izberemo delež slik za ohranitev
+        # Keep fraction adjustment: 
+        # A smaller fraction (e.g. 0.1) selects only the very best frames, reducing blur.
+        # However, we need enough frames to average out noise.
+        # 0.1 (10%) is a good starting point for lucky imaging.
+        keep_fraction_final = 0.1 
+        
+        best_frames_final, best_indices_final = select_sharpest_frames(frames, scores, keep_fraction=keep_fraction_final)
+        
+        # Pridobi ocene za najboljše slike
+        best_scores_final = np.array(scores)[best_indices_final]
+        
+        print(f"Uporabljamo {keep_fraction_final*100}% najboljših slik ({len(best_frames_final)}) za končno sliko.")
+        
+        # Izvedemo združevanje
+        result_lucky = lucky_imaging(best_frames_final, best_scores_final)
+        
+        # Najbolj ostra posamezna slika
+        sharpest_idx = np.argmax(scores)
+        result_sharpest = frames[sharpest_idx]
+        
+        # Shranimo rezultate
+        # Save as png
+        cv2.imwrite("result_sharpest.png", cv2.cvtColor(result_sharpest, cv2.COLOR_RGB2BGR))
+        cv2.imwrite("result_lucky.png", cv2.cvtColor(result_lucky, cv2.COLOR_RGB2BGR))
+        print("Slike shranjene: result_sharpest.png in result_lucky.png")
+
+        # Prikaz rezultatov
+        plt.figure(figsize=(12, 6))
+        
+        plt.subplot(1, 2, 1)
+        plt.imshow(result_sharpest)
+        plt.title(f"Sharpest Frame (Score: {scores[sharpest_idx]:.2f})")
+        plt.axis('off')
+        
+        plt.subplot(1, 2, 2)
+        plt.imshow(result_lucky)
+        plt.title(f"Lucky Imaging Result (Top {keep_fraction_final*100}%)")
+        plt.axis('off')
+        
+        plt.tight_layout()
+        plt.show()
 
 
 
